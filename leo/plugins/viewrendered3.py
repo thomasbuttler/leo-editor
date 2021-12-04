@@ -12,13 +12,12 @@ Markdown and Asciidoc text, images, movies, sounds, rst, html, jupyter notebooks
 
 #@+others
 #@+node:TomP.20200308230224.1: *3* About
-About Viewrendered3 V3.51
+About Viewrendered3 V3.7
 ===========================
 
-The ViewRendered3 plugin (hereafter "VR3") duplicates the functionalities of the
-ViewRendered plugin and enhances the display of Restructured Text (RsT),
-Markdown (MD), asnd Asciidoc (nodes and subtrees.  For RsT, MD, and Asciidoc
-the plugin can:
+The ViewRendered3 plugin (hereafter "VR3") renders Restructured Text (RsT),
+Markdown (MD), and Asciidoc (nodes and subtrees) in a separate pane.
+it duplicates and extendes the functionality of the ViewRendered plugin.  The plugin can:
 
     #. Render entire subtrees starting at the selected node;
     #. Render code and literal blocks in a visually distinct way;
@@ -28,7 +27,7 @@ the plugin can:
     #. Colorize code blocks;
     #. Execute Python code in the code blocks;
     #. Execute non-Python code blocks for certain languages.  Command line
-       parameters can be passed to these language processors.
+       parameters can be passed to these language processors. [RsT only]
     #. Insert the print() output of an execution at the bottom of the rendered display;
     #. Identify code blocks by either an @language directive or by the code block
        syntax normally used by RsT, MD, or Asciidoc (e.g., code fences for MD);
@@ -37,12 +36,10 @@ the plugin can:
        syntax for the structured text in use.
     #. Export the rendered node or subtree to the system browser;
     #. Export the generated markup to a chosen text editor.
-    #. Optionally render mathematics symbols and equations using MathJax (not in
-       Asciidoc yet);
-    #. Correctly handle RsT or MD (not tested for Asciidoc as yet) in a docstring;
+    #. Optionally render mathematics symbols and equations using MathJax.
     #. While an entire subtree rendering is visible, the display can be locked
        so that the entire tree shows even while a single node is being edited.
-    #. When an entire subtree is rendered, and editing is being done in one
+    #. When an entire subtree is rendered, and editing is being done in one 
        node, the display can be frozen (no changes will be displayed) if
        necessary to avoid excessive delay in re-rendering, or visual anomalies.
     #. The default rendering language for a node can be selected to by one of
@@ -187,27 +184,67 @@ example for the VR3 plugin::
 Stylesheets
 ===========
 
-ReStructured Text
+#@+node:tom.20211118000408.1: *5* ReStructuredText
+ReStructuredText
 ------------------
 
-Default CSS stylesheets are located in Leo's plugin/viewrendered3 directory.  For Restructured Text, stylesheet handling is quite flexible.
+Default CSS stylesheets are located in Leo's plugin/viewrendered3 directory. For
+Restructured Text, stylesheet handling is quite flexible.
 
-There are dark-theme and light-theme default stylesheets for RsT.  If no related settings are present, then VR3 chooses the dark one if the Leo theme name contains "dark" or the theme name is "DefaultTheme".
+There are dark-theme and light-theme default stylesheets for RsT and MD. If no
+related settings are present, then VR3 chooses the dark one if the Leo
+theme name contains "dark" or the theme name is "DefaultTheme".
 
-If the setting ``@bool vr3-rst-use-dark-theme = True``, then the dark theme will be used.  If it is set to ``False``, then the light one will be used.
+If the setting ``@bool vr3-rst-use-dark-theme = True``, then the dark theme will
+be used. If it is set to ``False``, then the light one will be used.
 
-The use of these default stylesheets can be overridden by the setting ``@string vr3-rst-stylesheet``.  This setting must be set to the path of a .css stylesheet file.  If it is a relative path, it is taken to be relative to the user's .leo/vr3 directory.  If it is an absolute path, then the string ``file:///`` may be prepended to the path; it will be removed if present.
+The use of these default stylesheets can be overridden by the setting ``@string
+vr3-rst-stylesheet``. This setting must be set to the path of a css stylesheet
+file. If it is a relative path, it is taken to be relative to the user's
+.leo/vr3 directory. If it is an absolute path, then the string ``file:///`` may
+be prepended to the path; it will be removed if present.
 
-These stylesheet settings can be changed and will take effect when the settings are reloaded, and VR3 is refreshed or restarted.  There is no need to close Leo and restart it.
+These stylesheet settings can be changed and will take effect when the settings
+are reloaded, and VR3 is refreshed or restarted. There is no need to close Leo
+and restart it.
 
-These settings can be placed into the @settings tree of an outline, and then that outline's settings will be used when that outline is active.  It is possible for one outline to use the dark stylesheet, another to use the light stylesheet, and a third to use a custom one.
-
+These settings can be placed into the @settings tree of an outline, and then
+that outline's settings will be used when that outline is active. It is possible
+for one outline to use the dark stylesheet, another to use the light stylesheet,
+and a third to use a custom one.
+#@+node:tom.20211118000432.1: *5* Markdown
 Markdown
 ---------
-If the default MD stylesheet is removed, the
-plugin will re-create it on startup, but the RsT stylesheet will not be
-recreated if removed.
-#@+node:tom.20210612193820.1: *4* Mathjax
+
+Markdown stylesheets can be specified in very flexible ways. Css stylesheets are
+looked for first in the user's `~/.leo/vr3 directory`, and then in the
+`leo/plugins/viewrendered3` directory.  The choice of stylesheet is as follows:
+
+- If the string setting `vr3-md-stylesheet` contains an absolute path, that file will
+  be used if it is found;  if it contains a bare file name, it will be used if it can 
+  be found in either of the two stylesheet directories.
+
+Otherwise:
+
+- If the boolean setting `vr3-md-style-auto` is ``True``, then the current Leo theme
+  will be examined to see if it is a dark theme or not.  If the theme is dark (light),
+  a stylesheet named `md_styles_solarized_dark.css` (`md_styles_solarized_light.css`)
+  will be looked for in the two stylesheet directories and used if found.
+
+Otherwise:
+
+- A default stylesheet named `md_styles.css` will be looked for in the two stylesheet
+  directories. If is not found, the plugin will re-create it on startup
+  (however, the RsT stylesheet will not be recreated if removed).
+
+The dark, light, and default stylesheets are included in the `leo/plugins/viewrendered3` directory.
+
+This priority scheme allow a user to modify any of the standard stylesheets in the default location
+(`leo/plugins/viewrendered3`) and put them in the `~/.leo/vr3` in order to override the standard ones.
+
+When a specific stylesheet path is specified by the `vr3-md-stylesheet` setting, the path separators
+can be any mix of Windows and Linux separators.
+#@+node:tom.20210612193820.1: *4* MathJax Script Location
 MathJax Script Location
 =======================
 
@@ -436,78 +473,87 @@ The VR3 plugin will render a node using Asciidoc if
 an Asciidoc or Asciidoc3 processor has been installed and the node type
 is ``@asciidoc`` or if the node starts with ``@language asciidoc``.
 
-If a Python Asciidoc processor is used (as opposed to Asciidoc3),
-the asciidoc processor must be in a directory directory pointed
-to by the system setting named ``vr3-asciidoc-path``.  As an
-alternative, VR3 will use an executable processor named ``asciidoc``
-if it is on the system path.
-
-It is also possible to use the Ruby ``asciidoctor.rb`` program as an external
-processor.  This will render the Asciidoc much faster than the Python
-``asciidoc`` module.
-
-.. note:: The Asciidoc processors are quite slow at rendering
-          long documents, as can happen when the "Entire Tree"
-          setting is used.  Restructured Text or Markdown are
-          recommended in those cases, or the Ruby version
-          ``asciidoctor`` (see below).
-
 The asciidoc processor must be one of:
 
-    1. ``asciidoctor``, which requires a Ruby environment to be
+    1. *asciidoctor*, which requires a Ruby environment to be
        installed on your computer;
 
-    2. ``asciidoc`` from https://asciidoc.org/index.html.
+    2. *asciidoc* from https://asciidoc.org/index.html.
        This may be available pre-installed or as a package
        in some Linux distributions;
 
-    3. ``asciidoc3``, which is available as a python installable
-       package but may be hard to get working on Windows;  or
+    3. *asciidoc3*, which is available as a python pip-installable
+       package but may be hard to get working on Windows.
 
-    4. Other external asciidoc processors may work if they can be
-       launched from the system path (either directly or by
-       an external batch file), but they will need to have the same
-       command line parameters as 1. or 2. above.
+Processor Priority
+-------------------
+A user may have both *asciidoc* and asciidoc3* installed.  VR3 will
+try processors using the following priority:
 
-Asciidoc can be imported into VR3 instead of being run as an external file
-by specifying its folder location in the ``@vr3-asciidoc-path`` setting.
-This will only work for ``asciidoc`` from the source stated in 1. above.
-This *may* provide faster rendering.
+1. The Ruby *asciidoctor* processor if it is requested by the setting::
 
-If both ``asciidoc`` and ``asciidoc3`` are found, then which one will
-be used can be set by the setting
+    @string vr3-prefer-external = asciidoctor
 
-    ``@bool vr3-prefer-asciidoc3``
+2. *asciidoc3* if requested by the setting::
 
-Its default setting is False, meaning that Asciidoc will be preferred
-over Asciidoc3.
+    @bool vr3-prefer-asciidoc3 = True
 
-AsciiDoctor
------------
+3. *asciidoc* .  If the setting *vr3-prefer-asciidoc3* is not *True*, then asciidoc will be tried before asciidoc3.
 
-Installing the ``asciidoctor`` Ruby Program
-===========================================
-First install the Ruby code environment.  It is not necessary to install
-the entire development system. A minimal install will be enough.
-Next, run the following commands in a terminal or Windows console::
+asciidoctor
+-------------
+To use *asciidoctor* first install Ruby.  First install the Ruby code environment.
+It is not necessary to install the entire development system. A minimal
+install will be enough. Next, run the following commands in a terminal 
+or Windows console::
 
     gem install asciidoctor
     gem install pygments.rb
 
-Specifying a Preference for the External AsciiDoctor Processor
-==============================================================
-To specify that VR3 should use the ``asciidoctor`` external program, add a
-setting to the @settings tree in MyLeoSettings.leo or
-in an outline you wish to render, then reload the settings. This
-setting is::
+There is more information at https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/.
+VR3 will attempt to find the program when it starts up.  The program should
+be on your PATH.
 
-    @string vr3-prefer-external = asciidoctor
+asciidoc
+--------
+*asciidoc* comes as a zip file, and is normally unzipped in some convenient
+location.  The setting *@string vr3-asciidoc-path* must point to the
+unzipped directory, e.g.::
 
-You can use another program of the same name as long as it accepts the same commandline parameters as asciidoctor.  This program must be on the system path.  Ruby and its ``gem`` installer set this up for you.  You can also use a different name for the external program, and you can include the complete path to the processor.
+    @string vr3-asciidoc-path = c:\utility\asciidoc-9.1.0
 
-.. note::
+asciidoc3
+----------
+asciidoc3 is a Python package that can be installed with pip.  On Windows, 
+a post-install program must be run.  Sometimes, and with some versions,
+asciidoc3 will malfunction on Windows.  If that happens, a message will
+be written to Leo's Log pane and VR3 will try to use *asciidoc* if it is
+present.
 
-    If a different program name is used, source highlighting may not work.
+
+.. note:: The Asciidoc processors are quite slow at rendering
+          long documents, as can happen when the "Entire Tree"
+          setting is used.The Ruby *asciidoctor* is much faster,
+          but there will be a delay as the Ruby runtime is loaded.
+
+          When rendering is slow, typing into a node can be annoying.
+          If so, use VR3's *Freeze* and *Reload* toolbar functions.
+
+Rendering Equations and Formulas
+---------------------------------
+When the setting *@bool vr3-math-output* is set to *True*, then a MathJax script
+will be included in the HTML output. Mathjax interprets a subset of Latex to
+render mathematics.  The Latex expressions must be enclosed by delimiters. The following seem to work with all three processors, although  you may need to experiment if
+math renderings do not look right.
+
+1. Inline math: enclose the latex with ``\( ....\ \)`` characters, where where ``....`` represents the Latex math expression.  Example::
+
+    \(a = \sqrt{b}\ \)
+
+.. Note:: There must be a backslash following the last character of the inline math, with no space bfore that added backslash.
+
+2. Blocks, such as aligned equations: enclose the latex block with ``$$ .... $$``,
+where ``....`` represents the Latex expressions.
 
 Asciidoc Dialects
 =================
@@ -843,6 +889,10 @@ RESPONSE = 'response'
 REST = 'rest'
 RST = 'rst'
 
+ASCIIDOC_CONF_FILENAME = 'html5.conf'
+MATHJAX_POLYFILL_URL = 'https://polyfill.io/v3/polyfill.min.js?features=es5'
+MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js'
+
 #@+<< RsT Error styles>>
 #@+node:tom.20210621192144.1: *3* << RsT Error styles>>
 RST_ERROR_BODY_STYLE = ('color:#606060;'
@@ -869,6 +919,12 @@ VR3_TEMP_FILE = 'leo_rst_html.html'
 XML = 'xml'
 ZOOM_FACTOR = 1.1
 
+#@+<< MD stylesheets >>
+#@+node:tom.20211117122509.1: *3* << MD stylesheets >>
+MD_BASE_STYLESHEET_NAME = 'md_styles.css'
+MD_STYLESHEET_DARK = 'md_styles_solarized_dark.css'
+MD_STYLESHEET_LIGHT = 'md_styles_solarized_light.css'
+
 MD_STYLESHEET_APPEND = '''pre {
    font-size: 110%;
    border: 1px solid gray;
@@ -882,13 +938,28 @@ body, th, td {
 }
 '''
 
+MD_STYLESHEET_DARK_APPEND = '''pre {
+   font-size: 110%;
+   border: 1px solid gray;
+   border-radius: .7em; padding: 1em;
+   background-color: #fff8f8
+}
+body, th, td {
+  font-family: Verdana,Arial,"Bitstream Vera Sans", sans-serif;
+  color: #839496;
+  background: #002b36;
+  font-size: 90%;
+}
+'''
+#@-<< MD stylesheets >>
+
 TEXT_HTML_HEADER = f'''<html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset={ENCODING}">
 </head>
 '''
+
 LEO_THEME_NAME = 'DefaultTheme.leo'
-MD_BASE_STYLESHEET_NAME = 'md_styles.css'
 RST_DEFAULT_STYLESHEET_NAME = 'vr3_rst.css'
 RST_DEFAULT_DARK_STYLESHEET = 'v3_rst_solarized-dark.css'
 RST_USE_DARK = False
@@ -914,6 +985,16 @@ EXECUTABLES_SECTION = 'executables'
 LEO_PLUGINS_DIR = os.path.dirname(__file__)
 NO_SVG_WIDGET_MSG = 'QSvgWidget not available'
 
+#@+<< Misc Globals >>
+#@+node:tom.20211126230402.1: *3* << Misc Globals >>
+ad3_file = ''
+asciidoc = None
+asciidoctor = None
+asciidoc_ok = False
+asciidoc3_ok = False
+asciidoc_dirs = {'asciidoc': {}, 'asciidoc3': {}}
+asciidoc_processors = []
+#@-<< Misc Globals >>
 #@-<< declarations >>
 
 trace = False
@@ -930,13 +1011,13 @@ image_template = '''\
 '''
 
 # http://docs.mathjax.org/en/latest/start.html
-latex_template = '''\
+latex_template = f'''\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_HTMLorMML'>
-    </script>
+    <script src="{MATHJAX_POLYFILL_URL}"></script> 
+    <script src='{MATHJAX_URL}'></script>
 </head>
 <body bgcolor="#fffbdc">
 %s
@@ -968,24 +1049,132 @@ def find_exe(exename):
     the full path to the executable as a string, or None.
     Returns None if the found executable is not marked as executable.
     """
-
     # Works for Linux and Windows
     venvdir = os.getenv("VIRTUAL_ENV")
     if venvdir:
-        scriptsdir = os.path.join(venvdir, 'Scripts')
+        scriptsdir = os.path.join(venvdir,'Scripts')
+        scripts_local_dir = ''
     else:
         scriptsdir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
+        local_python_appdata_dir = os.path.dirname(site.getusersitepackages())
+        scripts_local_dir = os.path.join(local_python_appdata_dir, 'Scripts')
 
-    exe = shutil.which(exename, os.X_OK, scriptsdir) or \
-          shutil.which(exename, os.X_OK)
+    exe = shutil.which(exename, os.X_OK, scriptsdir) \
+            or shutil.which(exename, os.X_OK, scripts_local_dir) \
+            or shutil.which(exename, os.X_OK)
 
     return exe
-#@+node:TomP.20200508125029.1: ** Find External Executables
-asciidoctor_exec = find_exe('asciidoc') or None
-asciidoc3_exec = find_exe('asciidoc3') or None
-pandoc_exec = find_exe('pandoc') or None
+#@+node:tom.20211127234312.1: ** find_dir()
+def find_dir(name, path):
+    """Given a starting directory, return the full path to the named directory.
+    
+    RETURNS
+    A full directory, or None if the named directory is not found.
+    """
+    for root, dirs, files in os.walk(path):
+        if name in dirs:
+            return os.path.join(root, name)
+    return None
+#@+node:tom.20211125003406.1: ** configure_asciidoc
+def configure_asciidoc():
+    r"""
+    #@+<< asciidoc docstring >>
+    #@+node:tom.20211125003406.2: *3* << asciidoc docstring >>
+    #@@nocolor
+    Determine which Asciidoc processor to use.
 
-os.path.dirname(__file__)
+    There are three possible processors:  asciidoc, asciidoc3, and asciidoctor.
+    asciidoctor is a Ruby program and must be run as an external program.
+    asciidoc comes as a zip file that gets unzipped somewhere.
+    asciidoc3 can be installed with pip, but on Windows can be a problem
+    to get working right.
+
+    Each one has its own way to be called.  The rendering code needs to know
+    which one to use.  VR3 will attempt to use one or the other depending
+    on these settings:
+
+        ``@string vr3-prefer-external = asciidoctor``
+        Specifies the use of the external Ruby program, if available.
+
+        ``@bool vr3-prefer-asciidoc3 = False``
+        When an internal processor will be used, whether to try asciidoc3 
+        or asciidoc first.  Some installations will have both.
+
+    Sets several variables::
+
+        asciidoc3_ok      # imported asciidoc3
+        asciidoc_ok       # imported asciidoc
+        asciidoctor       # path to asciidoctor program
+    #@-<< asciidoc docstring >>
+    """
+    # pylint: disable = import-outside-toplevel
+    global AsciiDocAPI, AsciiDoc3API, ad3, ad3_file
+    global asciidoc_ok, asciidoc3_ok, asciidoc_processors
+    global asciidoc_dirs
+
+    asciidoc_ok = False
+    asciidoc3_ok = False
+    #@+<< get asciidoc >>
+    #@+node:tom.20211125003406.3: *3* << get asciidoc >>
+    try:
+        from asciidoc import AsciiDocAPI
+        from asciidoc.asciidoc import VERSION
+        version = VERSION.split('.')
+        major = int(version[0])
+        goldilocks = int(version[1])
+        minor = int(version[-1])
+        dopatch = major == 10 and goldilocks == 0 and minor < 3
+
+        def new_init(self, asciidoc_py=None):
+            self.options = Options()
+            self.attributes = {}
+            self.messages = ['AsciiDocError']
+            self.asciidoc = self
+            self.cmd = 'asciidoc'
+
+        if dopatch:
+            print('.... Patching asciidoc')
+            from asciidoc.api import Options
+            AsciiDocAPI.__init__ = new_init
+
+        asciidoc_ok = True
+
+    except ImportError:
+        g.es('VR3 -- no asciidoc processor')
+
+    if asciidoc_ok:
+        # These locations are needed by our custom config file html5.conf
+        d_ = {}
+        file_ = sys.modules['asciidoc.asciidoc'].__file__
+        asciidoc_dir = os.path.dirname(file_)
+        d_['stylesheets'] = find_dir('stylesheets', asciidoc_dir)
+        d_['javascripts'] = find_dir('javascripts', asciidoc_dir)
+        asciidoc_dirs['asciidoc'] = d_
+    #@-<< get asciidoc >>
+    #@+<< get asciidoc3 >>
+    #@+node:tom.20211125003406.4: *3* << get asciidoc3 >>
+    try:
+        from asciidoc3.asciidoc3api import AsciiDoc3API
+        from asciidoc3 import asciidoc3 as ad3
+        ad3_file = ad3.__file__
+        asciidoc3_ok = True
+    except ImportError:
+        asciidoc3_ok = False
+        g.es('VR3 -- no asciidoc3 processor')
+
+    if asciidoc3_ok:
+        # These locations are needed by our custom config file html5.conf
+        d_ = {}
+        asciidoc3_dir = os.path.dirname(ad3_file)
+        d_['stylesheets'] = find_dir('stylesheets', asciidoc3_dir)
+        d_['javascripts'] = find_dir('javascripts', asciidoc3_dir)
+        asciidoc_dirs['asciidoc3'] = d_
+    #@-<< get asciidoc3 >>
+
+configure_asciidoc()
+#@+node:TomP.20200508125029.1: ** Find External Executables
+pandoc_exec = find_exe('pandoc') or None
+asciidoctor = find_exe('asciidoctor') or None
 
 #@+node:TomP.20210218231600.1: ** Find executables in VR3_CONFIG_FILE
 #@@language python
@@ -1293,7 +1482,7 @@ def export_rst_html(event):
         return
     if not _html:
         return
-    print(_html)
+
     _html = g.toUnicode(_html)
     # Write to temp file
     c = vr3.c
@@ -1467,7 +1656,6 @@ class ViewRenderedController3(QtWidgets.QWidget):
     def __init__(self, c, parent=None):
         """Ctor for ViewRenderedController class."""
         global _in_code_block
-
         self.c = c
         # Create the widget.
         QtWidgets.QWidget.__init__(self) # per http://enki-editor.org/2014/08/23/Pyqt_mem_mgmt.html
@@ -1585,8 +1773,7 @@ class ViewRenderedController3(QtWidgets.QWidget):
 
         if self.md_math_output and self.mathjax_url:
             self.md_header = fr'''
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-    <head xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <link rel="stylesheet" type="text/css" href="{self.md_stylesheet}">
     <script type="text/javascript" src="{self.mathjax_url}"></script>
@@ -1778,8 +1965,6 @@ class ViewRenderedController3(QtWidgets.QWidget):
         self.rst_stylesheet = c.config.getString('vr3-rst-stylesheet') or ''
         self.use_dark_theme = c.config.getBool('vr3-rst-use-dark-theme', RST_USE_DARK)
 
-        self.set_rst_stylesheet()
-
         self.math_output = c.config.getBool('vr3-math-output', default=False)
         self.mathjax_url = c.config.getString('vr3-mathjax-url') or ''
         self.rst_math_output = 'mathjax ' + self.mathjax_url
@@ -1788,60 +1973,147 @@ class ViewRenderedController3(QtWidgets.QWidget):
 
         self.md_math_output = c.config.getBool('vr3-md-math-output', default=False)
         self.md_stylesheet = c.config.getString('vr3-md-stylesheet') or ''
+        self.md_style_switch_auto = c.config.getBool('vr3-md-style-auto', default=True)
+
         self.set_md_stylesheet()
+        self.set_rst_stylesheet()
         self.create_md_header()
 
         self.asciidoc_path = c.config.getString('vr3-asciidoc-path') or ''
-        self.set_asciidoc_import()
-
-        self.prefer_asciidoc3 = c.config.getBool('vr3-prefer-asciidoc3', False)
+        self.prefer_asciidoc3 = c.config.getBool('vr3-prefer-asciidoc3', default=False)
         self.prefer_external = c.config.getString('vr3-prefer-external') or ''
-
-        if self.prefer_asciidoc3:
-            self.asciidoc_proc = asciidoc3_exec or asciidoctor_exec or None
-        else:
-            self.asciidoc_proc = asciidoctor_exec or asciidoc3_exec or None
+        self.asciidoc_show_proc_fail_msgs = True
 
         self.external_editor = c.config.getString('vr3-ext-editor') or ''
 
         self.DEBUG = bool(os.environ.get("VR3_DEBUG", None))
     #@+node:TomP.20200329223820.16: *4* vr3.set_md_stylesheet
     def set_md_stylesheet(self):
-        """Verify or create css stylesheet for Markdown node.
+        """Set or create css stylesheet for Markdown node.
 
-        If there is no custom css stylesheet specified by self.md_stylesheet,
-        check if there is one at the standard location.  If not, create
-        a default stylesheet and write it to a file at that place.
+        Stylesheet files are looked for first in ~/.leo/vr3,
+        then in the default location of leo/plugins/viewrendered3,
+        if their full path is not given.
 
-        The default location is assumed to be at leo/plugins/viewrendered3.
+        If a stylesheet file is specified by the setting "vr3-md-stylesheet",
+        then use this stylesheet if it is found.  
 
-        VARIABLE USED
+        Otherwise, if the setting "vr3-md-style-auto" is True, then attempt to
+        use a dark-vs-light theme according to whether the Leo theme
+        is marked dark or not.
+
+        Otherwise use the default stylesheet at leo/plugins/viewrendered3. 
+        If not present, create a default stylesheet and write it to a 
+        file at that place.
+
+
+        VARIABLES USED
         self.md_stylesheet -- The URL to the stylesheet.  Need not include
                               the "file:///", and must be an absolute path
                               if it is a local file.
 
                               Set by @string vr3-md-stylesheet.
+
+        self.md_style_switch_auto -- If True, try to use a dark-vs-light
+                                     stylesheet according to the Leo theme
+                                     in use.
         """
+
+        #@+others
+        #@+node:tom.20211117180937.1: *5* check_paths()
+        def check_paths(filename, dir_list):
+            """Given a file name, check for its existence in one of
+            a sequence of directories.  Return the first full path where 
+            the file is found, or None.
+            """
+
+            for direc in dir_list:
+                abs_file = os.path.join(direc, filename)
+                if os.path.exists(abs_file):
+                    return abs_file
+            return None
+        #@-others
+
+        # Style file locations
+        default_style_dir = os.path.join(g.app.leoDir, 'plugins', 'viewrendered3')
+        home_style_dir = os.path.join(g.app.homeDir, '.leo', 'vr3')
+        if g.isWindows:
+            default_style_dir = default_style_dir.replace('/', '\\')
+            home_style_dir = home_style_dir.replace('/', '\\')
+        style_dirs = (home_style_dir, default_style_dir)
+
+        style_path = ''
+
+        # If user has specified a stylesheet file, try to use it.
+        # Can be absolute path or file name. Can use either path separator.
+        if self.md_stylesheet:
+            #@+<< fix path separators >>
+            #@+node:tom.20211117161459.1: *5* << fix path separators >>
+            # Fix up path
+            # Defensive programming; only the first form should be needed
+            # but check the others just in case:
+            expr = ('file:///', 'file://', 'file:/', 'file:')
+            stylefile = self.md_stylesheet
+            for ex_ in expr:
+                if self.md_stylesheet.startswith(ex_):
+                    stylefile = self.md_stylesheet.replace(ex_, '')
+                    break
+
+            # Make all separators consistent and correct for the OS
+            stylefile = str(PurePath(stylefile))
+            #@-<< fix path separators >>
+            #@+<< check existence >>
+            #@+node:tom.20211117161734.1: *5* << check existence >>
+            # Check for style file's existence
+            style_path = None
+            if os.path.isabs(stylefile):
+                style_path = stylefile
+            else:
+                style_path = check_paths(stylefile, style_dirs)
+            #@-<< check existence >>
+            if style_path:
+                self.md_stylesheet = 'file:///' + style_path
+                g.es('VR3 Markdown stylesheet:', self.md_stylesheet)
+                return
+
+        # See if we should try to use stylesheet for Leo theme's light/dark character
+        if self.md_style_switch_auto:
+            dict_ = g.app.loadManager.globalSettingsDict
+            is_dark = dict_.get_setting('color-theme-is-dark')
+            stylefile = MD_STYLESHEET_DARK if is_dark else MD_STYLESHEET_LIGHT
+            style_path = check_paths(stylefile, style_dirs)
+            if style_path:
+                self.md_stylesheet = 'file:///' + style_path
+                g.es('VR3 Markdown stylesheet:', self.md_stylesheet)
+                return
+            g.es("Can't find light/dark style file")
 
         # If no custom stylesheet specified, use standard one.
         if not self.md_stylesheet:
             # Look for the standard one
-            vr_style_dir = g.os_path_join(g.app.leoDir, 'plugins', 'viewrendered3')
-            style_path = g.os_path_join(vr_style_dir, MD_BASE_STYLESHEET_NAME)
+            style_path = check_paths(MD_BASE_STYLESHEET_NAME, style_dirs)
+            if style_path:
+                self.md_stylesheet = 'file:///' + style_path
+                g.es('VR3 Markdown stylesheet:', self.md_stylesheet)
+                return
 
             # If there is no stylesheet at the standard location, have Pygments
             # generate a default stylesheet there.
             # Note: "cmdline" is a function imported from pygments
-            if not os.path.exists(style_path):
-                args = [cmdline.__name__, '-S', 'default', '-f', 'html']
-                # pygments cmdline() writes to stdout; we have to redirect it to a file
-                with ioOpen(style_path, 'w') as out:
-                    with redirect_stdout(out):
-                        cmdline.main(args)
-                # Add some fine-tuning css
-                with ioOpen(style_path, 'a') as out:
-                    out.write(MD_STYLESHEET_APPEND)
+            args = [cmdline.__name__, '-S', 'default', '-f', 'html']
+            # pygments cmdline() writes to stdout; we have to redirect it to a file
+            g.es('VR3-- creating new MD style sheet')
+            style_path = os.path.join(default_style_dir, MD_BASE_STYLESHEET_NAME)
+            with ioOpen(style_path, 'w') as out:
+                with redirect_stdout(out):
+                    cmdline.main(args)
+            # Add some fine-tuning css
+            with ioOpen(style_path, 'a') as out:
+                out.write(MD_STYLESHEET_APPEND)
             self.md_stylesheet = 'file:///' + style_path
+
+        g.es('VR3 Markdown stylesheet:', self.md_stylesheet)
+
 
     #@+node:TomP.20200329223820.17: *4* vr3.set_rst_stylesheet
     #@@language python
@@ -1901,21 +2173,7 @@ class ViewRenderedController3(QtWidgets.QWidget):
             else:
                 stylesheet = RST_DEFAULT_STYLESHEET_NAME
             self.rst_stylesheet = g.os_path_join(vr_style_dir, stylesheet)
-        g.es('VR3 stylesheet:', self.rst_stylesheet)
-    #@+node:TomP.20200820112350.1: *4* vr3.set_asciidoc_import
-    def set_asciidoc_import(self):
-        # pylint: disable=import-outside-toplevel
-        global AsciiDocAPI, AsciiDocError
-        if self.asciidoc_path:
-            if os.path.exists(self.asciidoc_path):
-                try:
-                    sys.path.append(self.asciidoc_path)
-                    from asciidocapi import AsciiDocAPI, AsciiDocError #pylint disable=import-outside-toplevel
-                except ImportError:
-                    self.asciidoc_path = ''
-            else:
-                self.asciidoc_path = ''
-
+        g.es('VR3 RsT stylesheet:', self.rst_stylesheet)
     #@+node:tom.20210621132824.1: *4* vr3.dbg_print
     def dbg_print(self, *args):
         if self.DEBUG:
@@ -2066,6 +2324,8 @@ class ViewRenderedController3(QtWidgets.QWidget):
         #@-others
         #@-<< docstring >>
         """
+        # pylint: disable = too-many-branches, too-many-locals
+        # pylint: disable = too-many-statements
         if not matplotlib:
             g.es('VR3 -- Matplotlib is needed to plot 2D data')
             return
@@ -2188,7 +2448,7 @@ class ViewRenderedController3(QtWidgets.QWidget):
 
                 # Extract x, y values into separate lists; ignore columns after col. 2
                 if num_cols == 1:
-                    x = [i for i in range(len(t))]
+                    x = range(len(t))
                     y = [float(b.strip()) for b in t]
                 else:
                     xy = [line.split()[:2] for line in t]
@@ -2604,105 +2864,159 @@ class ViewRenderedController3(QtWidgets.QWidget):
 
         return result
     #@+node:TomP.20200824155122.1: *5* vr3.convert_to_asciidoc
-
     def convert_to_asciidoc(self, s):
-        """Convert a string to html using an asciidoc processor.
+        r"""
+        #@+<< convert asciidoc docstring >>
+        #@+node:tom.20211122114736.1: *6* << convert asciidoc docstring >>
+        Convert a string to html using an asciidoc processor.
+
+        If the settings prefer an external asciidoctor (Ruby) processor,
+        use that if it can be found.  Else try to use either asciidoc or
+        asciidoc3, if either or both are installed; try asciidoc3 first if
+        requested by a setting.
+
+        Asciidoc3 can be a problem on Windows and might not work. If
+        so, we fall back on asciidoc.
+
+        If the "use math" setting is present, then tell the processors to
+        include a MathJax script in the output.
+
+        We use a customized .conf file with both asciidoc and asciidoc3
+        to insert Mathjax scripts into the  output when math output is 
+        requested.
+
+        Settings used::
+
+               Setting            Instance Variable
+            vr3-math-output        self.math_output
+            vr3-prefer-external    self.prefer_external
+            vr3-prefer-asciidoc3   self.prefer_asciidoc3
+            vr3-asciidoc-path      self.asciidoc_path   
 
         ARGUMENT
-        s -- a string
+        s -- the asciidoc string to convert.
 
         RETURNS
-        the html returned by the processor.
+        the html returned by the processor, or an error message.
+        #@-<< convert asciidoc docstring >>
         """
-
-        global AsciiDocError
-        h = None
-        if self.prefer_external:
+        global AsciiDocAPI, AsciiDoc3, API, ad3_file, asciidoc_processors
+        h = ''
+        if self.prefer_external == 'asciidoctor' and asciidoctor:
             h =  self.convert_to_asciidoc_external(s)
             self.rst_html = h
             return h
 
-        if self.asciidoc_proc == asciidoctor_exec:
-            try:
-                # in case using the imported processor fails,
-                # fall back to launching external asciidoc program
-                asciidoc = AsciiDocAPI() # pylint: disable=E0602 # Undefined variable 'AsciiDocAPI
-                infile = StringIO(s)
-                outfile = StringIO()
-                asciidoc.attributes['stem'] = 'latexmath'
-                asciidoc.execute(infile, outfile, backend='html5')
-                h = outfile.getvalue()
+        #@+<< function proc_string >>
+        #@+node:tom.20211122104550.1: *6* << function proc_string >>
+        def proc_string(proc):
+            st = f'{type(proc)}'.lower()
+            name = 'asciidoc3' if 'doc3' in st else 'asciidoc'
+            return name
+        #@-<< function proc_string >>
+
+        # Reuse cached processors if possible
+        if not asciidoc_processors:
+            asciidoc_processors = []
+            #@+<< Find available processors >>
+            #@+node:tom.20211122104636.1: *6* << Find available processors >>
+            # pylint: disable = undefined-variable
+            if asciidoc_ok:
+                asciidoc_processors.append(AsciiDocAPI())
+            if asciidoc3_ok:
+                asciidoc_processors.append(AsciiDoc3API(ad3_file))
+            if not asciidoc_processors:
+                h = '<h1>No asciidoc processors found</h1>'
                 self.rst_html = h
                 return h
-            except AttributeError:
-                if self.asciidoc_internal_ok:
-                    g.es('VR3 - asciidoc error, launching external program')
-                self.asciidoc_internal_ok = False
-                try:
-                    h = self.convert_to_asciidoc_external(s)
-                    self.rst_html = h
-                    return h
-                except Exception:
-                    g.es_exception()
-                except AsciiDocError as e:  #pylint: disable=undefined-variable
-                    g.es(f'==== asciidoc syntax error: {e}')
-            finally:
-                infile.close()
-                outfile.close()
-        else:
-            # This code is nearly the same as for asciidoc. It is
-            # repeated here in case we may want to add something else to
-            # the calling parameters.
-            try:
-                # asciidoc3api bug may cause this to fail,
-                # so fall back to launching the external asciidoc3 program.
-                if not self.asciidoc3_internal_ok:
-                    raise AttributeError
-                from asciidoc3.asciidoc3api import AsciiDoc3API #pylint: disable=import-outside-toplevel
-                adoc = AsciiDoc3API()
-                infile = StringIO(s)
-                outfile = StringIO()
-                adoc.execute(infile, outfile, backend='html5')
-                h = outfile.getvalue()
+
+            #@-<< Find available processors >>
+            if not asciidoc_processors:
+                h = '<h1>VR3 -- Cannot find an asciidoc processor</h1>'
                 self.rst_html = h
                 return h
-            except (AttributeError, ImportError):
-                if self.asciidoc3_internal_ok:
-                    g.es('VR3 - asciidoc3 error, launching external program')
-                self.asciidoc3_internal_ok = False
-                try:
-                    h =  self.convert_to_asciidoc_external(s)
-                    self.rst_html = h
-                    return h
-                except Exception:
-                    g.es_exception()
-                    return None
-            finally:
-                infile.close()
-                outfile.close()
+
+        #@+<< set processor priority >>
+        #@+node:tom.20211125140326.1: *6* << set processor priority >>
+        if self.prefer_asciidoc3:
+            if proc_string(asciidoc_processors[0]) != 'asciidoc3':
+                asciidoc_processors.reverse()
+        elif proc_string(asciidoc_processors[0]) != 'asciidoc':
+            asciidoc_processors.reverse()
+        #@-<< set processor priority >>
+
+        infile = StringIO(s)
+        outfile = StringIO()
+        h = ''
+        succeeded = None
+        failed = []
+
+        # Path of directory for our own asciidoc config file
+        asciidoc_conf_file = os.path.join(LEO_PLUGINS_DIR, 'viewrendered3', ASCIIDOC_CONF_FILENAME)
+        if not os.path.exists(asciidoc_conf_file):
+            asciidoc_conf_file = ''
+
+        #@+<< try all processors >>
+        #@+node:tom.20211122104319.1: *6* << try all processors >>
+        for processor in asciidoc_processors:
+            proc_name = proc_string(processor)
+
+            user_dir = PurePath(LEO_PLUGINS_DIR) / 'viewrendered3' / proc_name
+            conf_file = str(user_dir / ASCIIDOC_CONF_FILENAME)
+            stylesdir = asciidoc_dirs[proc_name]['stylesheets']
+            scriptsdir = asciidoc_dirs[proc_name]['javascripts']
+
+            processor.attributes['stylesdir'] = stylesdir
+            processor.attributes['scriptsdir'] = scriptsdir
+
+            if conf_file not in processor.options.values:
+                processor.options.append('--conf-file', conf_file)
+            if self.math_output:
+                processor.attributes['mathjax'] = True  # Can be anything
+            else:
+                processor.attributes.pop('mathjax', None)
+
+            h = ''
+            bkend = os.path.splitext(conf_file)[0]
+            try:
+                processor.execute(infile, outfile, backend=bkend)
+                h = outfile.getvalue()
+                succeeded = proc_name
+                break
+            except Exception as e:
+                failed.append(proc_name)
+                h += f'{proc_name} Failed: {e}\n'
+        #@-<< try all processors >>
+        self.rst_html = h
+        #@+<< show fail-succeed processors >>
+        #@+node:tom.20211122104420.1: *6* << show fail-succeed processors >>
+        if self.asciidoc_show_proc_fail_msgs:
+            if failed:
+                failed_procs = ','.join([f'{fail}' for fail in failed])
+                g.es(f'VR3 -- Asciidoc processing failed trying {failed_procs}')
+            if succeeded:
+                g.es(f'VR3 -- Asciidoc succeeded using {succeeded}')
+            # Reset to True on reload of settings:
+            self.asciidoc_show_proc_fail_msgs = False
+        #@-<< show fail-succeed processors >>
+
+        if succeeded:
+            infile.close()
+            outfile.close()
         return h
     #@+node:TomP.20191215195433.56: *5* vr3.convert_to_asciidoc_external
     def convert_to_asciidoc_external(self, s):
-        """Convert s to html using external asciidoc or asciidoc3 processor."""
-        pc = self
-        c, p = pc.c, pc.c.p
-        path = g.scanAllAtPathDirectives(c, p) or c.getNodePath(p)
-        if not os.path.isdir(path):
-            path = os.path.dirname(path)
-        if os.path.isdir(path):
-            os.chdir(path)
-        s = pc.run_asciidoctor_external(s)
+        """Convert s to html using the Ruby asciidoctor3 processor."""
+        s = self.run_asciidoctor_external(s)
         return g.toUnicode(s)
-    #@+node:TomP.20191215195433.57: *5* vr3.run_asciidoctor_external
+    #@+node:TomP.20191215195433.57: *6* vr3.run_asciidoctor_external
     def run_asciidoctor_external(self, s):
         """
-        Process s with asciidoc or asciidoc3 external processor.
+        Process s with an asciidoctor3 external processor.
         Return the contents of the html file.
         The caller handles all exceptions.
         """
 
-        global asciidoctor_exec, asciidoc3_exec
-        assert asciidoctor_exec or asciidoc3_exec, g.callers()
         home = g.os.path.expanduser('~')
         i_path = g.os_path_finalize_join(home, 'vr3_adoc.adoc')
         o_path = g.os_path_finalize_join(home, 'vr3_adoc.html')
@@ -2712,33 +3026,17 @@ class ViewRenderedController3(QtWidgets.QWidget):
             f.write(s)
 
         # Call the external program to write the output file.
-        # Assume that the command line may be different between asciidoc and asciidoc3
-        print(f'self.prefer_external: {self.prefer_external}')
-        print(f'self.asciidoc_proc: {self.asciidoc_proc}')
-        if 'asciidoctor' in self.prefer_external:
-            command = f"del {o_path} & {self.prefer_external} -b html5 -a mathjax {i_path}"
-        elif self.asciidoc_proc == asciidoctor_exec:
-            command = f"del {o_path} & {self.asciidoc_proc} -b html5 -a mathjax {i_path}"
-        else:
-            command = f"del {o_path} & {self.asciidoc_proc} -b html5 -a mathjax {i_path}"
-
-        ext_proc = self.prefer_external or self.asciidoc_proc
-        if ext_proc:
-            if not self.using_ext_proc_msg_shown:
-                g.es(f"=== Using external asciidoc processor: {ext_proc}")
-                self.using_ext_proc_msg_shown = True
-
-            g.execute_shell_commands(command)
-            # Read the output file and return it.
-            try:
-                with open(o_path, 'r', encoding='utf-8') as f:
-                    return f.read()
-            except Exception as e:
-                message = f'asciidoc output file not found\n {e}'
-                g.es(message)
-                return message
-        else:
-            return 'Asciidoc processor not found - cannot render the text'
+        attr = '-a stem' if self.math_output else ''
+        command = (f'asciidoctor -b html5 {attr} {i_path}')
+        g.execute_shell_commands(command)
+        # Read the output file and return it.
+        try:
+            with open(o_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            message = f'asciidoctor output file not found:\n {e}'
+            g.es(message)
+            return message
 
     #@+node:TomP.20191215195433.58: *4* vr3.update_graphics_script
     def update_graphics_script(self, s, keywords):
